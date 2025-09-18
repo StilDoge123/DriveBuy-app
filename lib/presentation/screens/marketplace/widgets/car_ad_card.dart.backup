@@ -1,0 +1,241 @@
+import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../domain/models/car_ad.dart';
+import '../../../../domain/models/chat_user.dart';
+import '../../../../config/api_config.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../app/bloc/auth_cubit.dart';
+import '../../../app/bloc/saved_ads_cubit.dart';
+import '../../../app/di/locator.dart';
+import '../../../../data/services/chat_service.dart';
+import '../../../../data/repositories/user_repository.dart';
+
+class CarAdCard extends StatelessWidget {
+  final CarAd ad;
+  final VoidCallback? onTap;
+
+  const CarAdCard({
+    super.key,
+    required this.ad,
+    this.onTap,
+  });
+
+  Future<void> _toggleSave(BuildContext context) async {
+    final user = context.read<AuthCubit>().state;
+    final userId = user?.uid;
+    final baseUrl = ApiConfig.baseUrl;
+    final savedAdsCubit = context.read<SavedAdsCubit>();
+    final isSaved = savedAdsCubit.isAdSaved(ad.id);
+    final dio = locator<Dio>();
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Влезте или се регистрирайте, за да запазите обява.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+    try {
+      if (isSaved) {
+        final url = '$baseUrl/users/$userId/saved-ads/remove/${ad.id}';
+        await dio.post(url);
+        savedAdsCubit.removeSavedAd(ad.id);
+      } else {
+        final url = '$baseUrl/users/$userId/saved-ads/${ad.id}';
+        await dio.post(url);
+        savedAdsCubit.addSavedAd(ad.id);
+      }
+    } catch (e) {
+      print('Error saving/unsaving ad: $e');
+    }
+  }
+
+  Future<void> _startChat(BuildContext context) async {
+    final user = context.read<AuthCubit>().state;
+    final userId = user?.uid;
+    
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Влезте или се регистрирайте, за да започнете чат.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    // Don't allow chatting with yourself
+    if (userId == ad.userId) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Не можете да започнете чат със себе си.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final chatService = locator<ChatService>();
+      final userRepository = locator<UserRepository>();
+      
+      // Get current user info
+      final currentUserData = await userRepository.getCurrentUser();
+      
+      // Try to get seller info - use public info if the authenticated call fails
+      late Map<String, dynamic> sellerData;
+      try {
+        sellerData = await userRepository.getUser(ad.userId);
+      } catch (e) {
+        // Fallback to public user info if the authenticated call fails
+        try {
+          sellerData = await userRepository.getUserPublicInfo(ad.userId);
+        } catch (e2) {
+          // If both fail, create minimal seller data from ad info
+          sellerData = {
+            'name': ad.phone != null ? ad.phone! : 'Unknown Seller',
+            'email': null,
+            'profileImageUrl': null,
+            'phone': ad.phone,
+          };
+        }
+      }
+      
+      final buyer = ChatUser(
+        id: userId,
+        name: currentUserData['name'] ?? currentUserData['email'] ?? 'Unknown User',
+        profileImageUrl: currentUserData['profileImageUrl'],
+        phone: currentUserData['phone'],
+      );
+      
+      final seller = ChatUser(
+        id: ad.userId,
+        name: sellerData['name'] ?? sellerData['email'] ?? 'Unknown User',
+        profileImageUrl: sellerData['profileImageUrl'],
+        phone: sellerData['phone'],
+      );
+      
+      final chat = await chatService.getOrCreateChat(
+        adId: ad.id,
+        adTitle: '${ad.make} ${ad.model} ${ad.title}',
+        buyer: buyer,
+        seller: seller,
+      );
+      
+      if (context.mounted) {
+        context.push('/chat/${chat.id}', extra: {
+          'adId': ad.id,
+          'adTitle': '${ad.make} ${ad.model} ${ad.title}',
+          'otherUser': seller,
+          'currentUserId': userId,
+        });
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to start chat: ${e.toString()}'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SavedAdsCubit, Set<int>>(
+      builder: (context, savedAds) {
+        final isSaved = savedAds.contains(ad.id);
+        return Card(
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (ad.imageUrls.isNotEmpty)
+                  Stack(
+                    children: [
+                      Image.network(
+                        ad.imageUrls.first,
+                        height: 200,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 200,
+                            color: Colors.grey[300],
+                            child: const Center(
+                              child: Icon(Icons.error_outline),
+                            ),
+                          );
+                        },
+                      ),
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.chat, color: Colors.white),
+                              onPressed: () => _startChat(context),
+                              style: IconButton.styleFrom(
+                                backgroundColor: Colors.black.withOpacity(0.6),
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                isSaved ? Icons.favorite : Icons.favorite_border,
+                                color: Colors.red,
+                              ),
+                              onPressed: () => _toggleSave(context),
+                              style: IconButton.styleFrom(
+                                backgroundColor: Colors.black.withOpacity(0.6),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${ad.make} ${ad.model} ${ad.title}',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        '€${ad.price.toString()}',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${ad.year}г. 🚗 ${ad.mileage}км 🚗 ${ad.horsepower}к.с. 🚗 ${ad.fuelType}',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Location:  ${ad.region ?? ''}${ad.city != null ? (ad.region != null ? ', ' : '') + ad.city! : ''}',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+} 

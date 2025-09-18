@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveBuy - Download App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: #4CAF50;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+        
+        .download-section {
+            margin: 30px 0;
+        }
+        
+        .download-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        
+        .download-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .qr-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .qr-code {
+            margin: 20px 0;
+        }
+        
+        .instructions {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ol {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .file-info {
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">DB</div>
+        <h1>DriveBuy</h1>
+        <p class="subtitle">Car Marketplace App</p>
+        
+        <div class="download-section">
+            <a href="YOUR_GOOGLE_DRIVE_APK_LINK_HERE" class="download-btn" download="DriveBuy.apk">
+                📱 Download for Android
+            </a>
+        </div>
+        
+        <div class="file-info">
+            <strong>File:</strong> DriveBuy.apk<br>
+            <strong>Size:</strong> ~54 MB<br>
+            <strong>Version:</strong> 1.0.0
+        </div>
+        
+        <div class="qr-section">
+            <h3>📱 Scan QR Code to Download</h3>
+            <div class="qr-code" id="qrcode"></div>
+            <p>Scan this QR code with your Android device to download the app</p>
+        </div>
+        
+        <div class="instructions">
+            <h3>📋 Installation Instructions</h3>
+            <ol>
+                <li>Download the APK file by clicking the button above or scanning the QR code</li>
+                <li>On your Android device, go to <strong>Settings > Security</strong></li>
+                <li>Enable <strong>"Install from Unknown Sources"</strong> or <strong>"Allow from this source"</strong></li>
+                <li>Open the downloaded APK file</li>
+                <li>Tap <strong>"Install"</strong> when prompted</li>
+                <li>Open the app and enjoy!</li>
+            </ol>
+        </div>
+        
+        <div class="warning">
+            <strong>⚠️ Security Note:</strong> This app is not from the Google Play Store. 
+            Make sure you trust the source before installing. The app is safe and contains no malware.
+        </div>
+        
+        <p style="color: #666; margin-top: 30px; font-size: 14px;">
+            Need help? Contact us at support@drivebuy.com
+        </p>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        // Generate QR code for the current page URL
+        const currentUrl = window.location.href;
+        
+        QRCode.toCanvas(document.getElementById('qrcode'), currentUrl, {
+            width: 200,
+            height: 200,
+            color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+            }
+        }, function (error) {
+            if (error) console.error(error);
+            console.log('QR code generated successfully!');
+        });
+        
+        // Auto-download on mobile devices
+        if (/Android/i.test(navigator.userAgent)) {
+            const downloadBtn = document.querySelector('.download-btn');
+            downloadBtn.style.background = '#2e7d32';
+            downloadBtn.innerHTML = '📱 Tap to Download (Android Detected)';
+        }
+    </script>
+</body>
+</html>
