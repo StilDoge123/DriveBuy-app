@@ -41,7 +41,6 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAaIz65VJ51_whf6DepIujwI6DZndk1W1w',
     appId: '1:350939662309:web:40f79e74490bc36a73510c',
     messagingSenderId: '350939662309',
     projectId: 'drivebuy-sv123',
@@ -51,7 +50,6 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDhjepAeI-RJ0OY27ZK9LHr0Jyun-4e8vE',
     appId: '1:350939662309:android:50459030ffa5638573510c',
     messagingSenderId: '350939662309',
     projectId: 'drivebuy-sv123',
@@ -59,7 +57,6 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCGdiybCP2GbQWLypEn4barIex1SbHWWZg',
     appId: '1:350939662309:ios:0ecfe21a3c735e5273510c',
     messagingSenderId: '350939662309',
     projectId: 'drivebuy-sv123',
@@ -68,7 +65,6 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCGdiybCP2GbQWLypEn4barIex1SbHWWZg',
     appId: '1:350939662309:ios:0ecfe21a3c735e5273510c',
     messagingSenderId: '350939662309',
     projectId: 'drivebuy-sv123',
@@ -77,7 +73,6 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAaIz65VJ51_whf6DepIujwI6DZndk1W1w',
     appId: '1:350939662309:web:ecd960ed5220f55173510c',
     messagingSenderId: '350939662309',
     projectId: 'drivebuy-sv123',
