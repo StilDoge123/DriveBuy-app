@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "350939662309",
+    "project_id": "drivebuy-sv123",
+    "storage_bucket": "drivebuy-sv123.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:350939662309:android:50459030ffa5638573510c",
+        "android_client_info": {
+          "package_name": "com.example.drivebuy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhjepAeI-RJ0OY27ZK9LHr0Jyun-4e8vE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
