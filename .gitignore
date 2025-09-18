@@ -46,3 +46,12 @@ app.*.map.json
 
 # Secret files
 .env
+
+# Firebase/Google Services configuration files (contain API keys)
+**/GoogleService-Info.plist
+**/google-services.json
+
+# Build artifacts that should not be in version control
+*.apk
+*.aab
+*.ipa
